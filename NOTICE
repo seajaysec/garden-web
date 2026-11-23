@@ -1,0 +1,21 @@
+garden-drums: Garden's web page with a drum of X0X's 909 and 808 voices.
+
+This repository is free software under the GNU General Public License, version 3 only (LICENSE).
+
+It contains, unchanged from X0X (https://github.com/charlesvestal/fm1-x0x, commit 6515e77, GPL-3.0-only):
+  x0x/drum909.c, drum909.h, drum909_dsp.h   the 909: 9W9 by A Thousand Details - https://github.com/athousanddetails/schwung-9W9
+  x0x/drum808.c, drum808.h                  the 808: 8W8 by A Thousand Details - https://github.com/athousanddetails/schwung-8W8
+  x0x/fastmath.h, x0x_param.h               X0X's shared maths and parameter descriptors
+  x0x/tools/gen_drum_samples.py             X0X's generator of the sample and table headers
+  x0x/assets/909/                           hi-hat, ride and crash samples from ER-99 by Matthew Cieplak (GPL-3.0)
+
+9W9 and 8W8 carry additional terms (GNU GPL v3 section 7, in their NOTICE files): their attribution, above, kept
+unaltered wherever this work shows credits, and a changed version marked as changed. This work changes how they are
+used, not their code: drums.c renders one hit at a time, with the reverb and delay sends left out, and drum.js plays
+the hits back in the browser. The page shows the attribution under its version line.
+
+Of this repository's own: web/, tools/web.cpp, tools/host_world.h, drums.c, drum.js, web.sh and test.mjs, GPL-3.0-only.
+
+The engine is built from the Garden pack's public sources (garden-op1f: garden.cpp, articulate.cpp and its picture,
+under the MIT License), which the MIT License lets be combined with this repository's code; the built
+page is distributed under the GPL-3.0. Tone.js (web/vendor/) is MIT, its licence beside it.

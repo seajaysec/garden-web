@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Garden</title>
+<meta name="description" content="Garden, the open-field chord player for the OP-1 Field, playable in the browser.">
+<meta name="theme-color" content="#0b0c0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Garden">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="app">
+  <section class="device" aria-label="Garden on an OP-1 Field">
+    <div class="bar">
+      <div class="views" role="tablist">
+        <button class="view on" data-view="synth" role="tab">Garden synth</button>
+        <button class="view" data-view="drum" role="tab">Garden drum</button>
+        <button class="view" data-view="sound" role="tab">Sound</button>
+      </div>
+      <button id="explain" class="seq explain" aria-pressed="false" aria-label="explain the controls" title="? : tap a control to see what it does">?</button>
+      <div class="bar-mix" id="mixer" hidden>
+        <label class="ctl"><span>synth</span><input id="mix-synth" type="range" min="-40" max="0" step="1"><span id="mix-synth-v" class="v"></span></label>
+        <label class="ctl"><span>drum</span><input id="mix-drum" type="range" min="-30" max="6" step="1"><span id="mix-drum-v" class="v"></span></label>
+        <label class="ctl kit-ctl"><span>mode</span><select id="synth-mode"></select></label>
+        <label class="ctl kit-ctl"><span>kit</span><select id="kit"></select></label>
+      </div>
+      <label class="tempo"><span id="bpm-out">120</span><input id="bpm" type="range" min="40" max="240" value="120" aria-label="tempo"></label>
+    </div>
+    <div class="screen-wrap">
+      <div id="screen" class="screen"></div>
+      <canvas id="synth-screen" class="screen" width="960" height="440" hidden></canvas>
+      <div id="shift-badge" class="shift-badge">shift</div>
+    </div>
+    <div class="controls">
+      <div class="side">
+        <button class="key small" data-control="help">help</button>
+        <button class="key small shift" data-control="shift" id="shift-key">shift</button>
+      </div>
+      <div class="knobs">
+        <div class="knob blue" data-knob="0" tabindex="0" aria-label="blue knob"><span class="tick"></span><kbd data-push="0"></kbd></div>
+        <div class="knob tan" data-knob="1" tabindex="0" aria-label="tan knob"><span class="tick"></span><kbd data-push="1"></kbd></div>
+        <div class="knob gray" data-knob="2" tabindex="0" aria-label="gray knob"><span class="tick"></span><kbd data-push="2"></kbd></div>
+        <div class="knob orange" data-knob="3" tabindex="0" aria-label="orange knob"><span class="tick"></span><kbd data-push="3"></kbd></div>
+      </div>
+      <div class="tkeys">
+        <button class="key" data-control="t0">T1<kbd></kbd></button><button class="key" data-control="t1">T2<kbd></kbd></button><button class="key" data-control="t2">T3<kbd></kbd></button><button class="key" data-control="t3">T4<kbd></kbd></button>
+      </div>
+    </div>
+    <div class="numbers" id="numbers"></div>
+    <div class="keys-row">
+      <button class="key small" id="oct-down" aria-label="octave down">−</button>
+      <div class="piano" id="piano"></div>
+      <button class="key small" id="oct-up" aria-label="octave up">+</button>
+    </div>
+    <p class="hint" id="hint"></p>
+    <p class="keys-mode" id="keys-mode"></p>
+  </section>
+  <section class="learn" aria-label="What Garden is doing">
+    <div class="card coach" id="coach" aria-live="polite"></div>
+    <div class="card lanes" id="lanes"></div>
+    <div class="card chord">
+      <div class="chord-word" id="chord-word">—</div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <details class="card keys-ref" id="keys-ref">
+      <summary>Computer keys</summary>
+      <table>
+        <thead><tr><th></th><th>Garden synth</th><th>Garden drum</th></tr></thead>
+        <tbody>
+          <tr><td>Number keys 1–8</td><td><kbd>1</kbd>–<kbd>8</kbd></td><td><kbd>q</kbd>–<kbd>i</kbd></td></tr>
+          <tr><td>T1–T4</td><td><kbd>a</kbd> <kbd>s</kbd> <kbd>d</kbd> <kbd>f</kbd></td><td><kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd></td></tr>
+          <tr><td>Knob pushes</td><td><kbd>z</kbd> <kbd>x</kbd> <kbd>c</kbd> <kbd>v</kbd></td><td><kbd>n</kbd> <kbd>m</kbd> <kbd>,</kbd> <kbd>.</kbd></td></tr>
+        </tbody>
+      </table>
+      <p><kbd>Shift</kbd> shift · <kbd>/</kbd> help · <kbd>←</kbd> <kbd>→</kbd> octave · <kbd>`</kbd> piano on the Garden shown:
+        <kbd>a</kbd> <kbd>w</kbd> <kbd>s</kbd> <kbd>e</kbd> <kbd>d</kbd> <kbd>f</kbd> <kbd>t</kbd> <kbd>g</kbd> <kbd>y</kbd> <kbd>h</kbd> <kbd>u</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>o</kbd> <kbd>l</kbd> <kbd>p</kbd> <kbd>;</kbd>
+        from middle C, <kbd>`</kbd> again for the controls.</p>
+      <p>Knobs: drag, scroll or arrow keys on a focused knob; a click pushes.</p>
+    </details>
+    <details class="card words"><summary>Garden's words</summary><dl id="words"></dl></details>
+    <div class="card roll-card"><canvas id="roll" width="720" height="220"></canvas></div>
+    <details class="card settings"><summary>Every setting</summary><dl id="settings"></dl></details>
+    <div class="card connect">
+      <div class="midi" id="midi">MIDI: not connected</div>
+      <div class="row">
+        <button class="btn" id="share">Copy link to this state</button>
+        <button class="btn" id="report">Report a difference</button>
+        <button class="btn quiet" id="reset">Start over</button>
+      </div>
+      <div class="note" id="toast" role="status"></div>
+      <div class="version" id="version"></div>
+      <div class="version credits" id="credits"></div>
+    </div>
+  </section>
+</main>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+<dialog id="report-dlg" class="dlg">
+  <form method="dialog" id="report-form">
+    <h2>Web and unit differ</h2>
+    <label>What did you play?<textarea id="r-did" rows="2" placeholder="held C, turned tan to arp, pushed gray"></textarea></label>
+    <label>What did the web do?<textarea id="r-web" rows="2"></textarea></label>
+    <label>What did the unit do?<textarea id="r-unit" rows="2"></textarea></label>
+    <p class="note">The issue opens on GitHub with this page's exact state attached, so it can be played back here.</p>
+    <div class="row"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn go" id="r-open" value="open">Open the issue</button></div>
+  </form>
+</dialog>
+<script src="vendor/Tone.js"></script>
+<script src="engine.js"></script>
+<script src="drums.js"></script>
+<script src="drum.js"></script>
+<script src="synth.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
