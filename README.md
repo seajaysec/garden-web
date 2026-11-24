@@ -22,14 +22,23 @@ node test.mjs       # every key of every kit rendered by the drum engines
 ## Play
 
 - **Garden synth · Garden drum · Sound.** Two Gardens, each its own engine and settings, on one clock and one tempo:
-  Garden synth plays the synth, Garden drum the drum, and both can play at once. Their steps fall on the clock's
-  grid (each at its own rate), so their bars line up whenever each key went down. Sound is the synth's own pages on the knobs
-  (T1 sound, T2 envelope, Shift+T2 play, T3 fx, T4 lfo).
-- **Garden drum** has two modes, Shift + tan push on T1: **melodic** (Garden as on the synth, for a sample laid a
-  semitone a key) and **drum** (the drum theme, a drummer's style names, octaves on the other half of the kit). A kit
-  sets the mode when picked: 808, 909 and 808 + 909 drum, the melodic kits melodic.
-- **The mix card:** each Garden's level and the drum's kit.
-- **Sound starts at the first touch or key.**
+  Garden synth plays the synth, Garden drum the drum, and both play at once. Switching between them keeps the page
+  you were on (T1 to T4). Sound is the synth's own pages on the knobs (T1 sound, T2 envelope, Shift + T2 play, T3 fx,
+  T4 lfo), with each Garden's level (the synth at -18 dB, the drum at +4 dB), the synth's mode (poly, mono, legato,
+  unison) and the drum's kit in the bar beside the tempo.
+- **In time together.** Here a chord starts on the clock's next 1/16, its steps fall on the clock's grid at its own
+  rate, the cycle starts over on the shared bar lines (1 bar unless set), and a walk changes chords on its own
+  length's lines, so the two Gardens line up however their keys went down. (On the unit a chord starts at the key.)
+- **Demos** (the menu beside the tempo, here only): bloom, night, drift and run. Each plants four gardens in both
+  Gardens and sets a style, rate, cycle and walk, a synth half and a drum half laid for the 808. On T4, Shift + blue
+  push walks them.
+- **Garden drum** starts in drum mode (the drum theme, a drummer's style names, octaves on the other half of the
+  kit); Shift + tan push on T1 switches to melodic mode (Garden as on the synth, for a sample laid a semitone a key).
+  A kit sets the mode when picked: 808, 909 and 808 + 909 drum, the melodic kits melodic.
+- **Learning it.** The coach, under the screen, says what is happening and what to try next. **?** makes a tap
+  explain a control instead of playing it (a mouse explains on hover). **Garden's words** explains each of Garden's
+  terms, and the coach underlines them. **Computer keys** lists the keys.
+- **Sound starts at the first touch or key.** A Field's own Sequencer key (MIDI) switches Garden off and on.
 - **The computer's keys** (by their place, so Shift does not change them):
 
   | | Garden synth | Garden drum |
@@ -42,6 +51,7 @@ node test.mjs       # every key of every kit rendered by the drum engines
   (`a w s e d f t g y h u j k o l p ;` from middle C) and back. The caps beside the controls show once keys are used.
 - **MIDI:** a Field in MIDI controller mode (knobs relative) drives the Garden shown, its Help key held as Shift and a
   tap as Help; any MIDI keyboard plays it.
+- **The pack** for an OP-1 Field, and its source: [garden-op1f](https://github.com/seajaysec/garden-op1f).
 
 ## What is where
 
