@@ -118,6 +118,14 @@ EMSCRIPTEN_KEEPALIVE void gw_instrument(int drum) {
     garden_shown(instr, on ? (u32)OP1F_SHOWN_UP : (u32)OP1F_SHOWN_OFF);
 }
 
+// A demo's half of this Garden (the drum's when it is the drum), and the next push's demo after it: the page loads
+// the other Garden's half when one is loaded on the unit's way (T4, Shift + tan push).
+EMSCRIPTEN_KEEPALIVE void gw_demo(int i) {
+    if (i < 0 || i >= (int)DEMOS) return;
+    load_demo(i, instr == 1u);
+    demo_next = (i + 1) & (DEMOS - 1);
+}
+
 EMSCRIPTEN_KEEPALIVE void gw_frame(unsigned ms, int shift) {
     ms_now = ms;
     Op1fFrame f = { 40, frame_no++, ms, 7, 77, (unsigned)shift, 0, page_card(), 0, 0 };
@@ -181,7 +189,7 @@ static void close_obj() { if (js[jn - 1] == ',') --jn; put("}"); }
 extern "C" EMSCRIPTEN_KEEPALIVE const char* gw_state(int shift) {
     jn = 0;
     put("{");
-    num("on", on); num("drum", (int)instr); num("kit", drum_mode()); num("page", page); num("help", help_open); num("mono", st.mono);
+    num("on", on); num("drum", (int)instr); num("demo_loaded", (int)demo_loaded); num("demo_now", demo_now); num("kit", drum_mode()); num("page", page); num("help", help_open); num("mono", st.mono);
     put("\"g\":{");
     num("cascade", g.cascade); num("boost", g.boost); num("style", g.style); num("rate", g.rate); num("order", g.order);
     num("phrase", g.phrase); num("vtype", g.vtype); num("pulse", g.pulse); num("loop", g.loop); num("hold", g.hold);

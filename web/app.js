@@ -536,6 +536,7 @@
     'walk': 'Shift + blue push on T4: Garden plays the planted gardens in turn, each for the walk length, in the walk order.',
     'sow': 'Garden drum, Shift + gray push on T4: every empty garden gets a random key, kind and pollinators. Planted ones are kept.',
     'reap': 'Garden drum, Shift + orange push on T4: every garden emptied. A walk with no garden left ends, as the ending says.',
+    'demos': 'Shift + tan push on T4, each push the next: bloom, night, drift and run. Each plants four gardens and sets a style, rate, cycle and walk, a synth half and a drum half that play together; loading one on either Garden loads both. Shift + blue push walks them.',
     'drum mode': 'Garden drum\'s first mode, for a kit: a chord\'s notes are keys apart and wrap round the 24 keys, octaves land on the other half of the kit, and the styles take a drummer\'s names (hit, flam, drag, loose, roll, run, groove, sweep). Shift + tan push on T1 switches.',
     'melodic mode': 'Garden drum\'s second mode, for one sound laid a semitone a key: Garden plays real chords, folded onto the 24 keys. Shift + tan push on T1 switches.',
     'shift': 'Hold it (or tap it, for the next control) for each control\'s second layer: on T1 echo, rate, the other order and boost pulse; on T2 the ending.',
@@ -573,7 +574,7 @@
       else say = 'Hold a key: Garden plays a ' + n.kinds[g.quality] + ' chord on it as ' + (/^[aeiou]/.test(n.style) ? 'an ' : 'a ') + n.style + ', in time. Keys 1–4 change the ' + w('chord kind') + ', 5–8 add ' + w('pollinators') + '. Push gray to ' + w('latch') + ' it.' + (onDrum ? ' This is ' + w('melodic mode') + '.' : '');
     } else if (S.page === 1) say = 'Rhythm: ' + w('loop') + ', ' + w('length') + ', ' + w('swing') + ' and ' + w('human') + '. With Shift: blue the ' + w('ending') + ' (now a chord let go ' + end + '), tan the ' + w('cycle') + ' (' + n.cycle + '), gray the ' + w('downtime') + ' (' + n.downtime + ').';
     else if (S.page === 2) say = 'Palette: the ' + w('banks') + ' that keys 1–8 choose from. Turn a knob to move its cursor, push to swap that cell for one not in use.';
-    else say = w('gardens', 'Gardens') + ': a number key plays one, Shift + a number key plants the chord now. Shift + blue push to ' + w('walk') + ' them.' + (onDrum ? ' Shift + gray push to ' + w('sow') + ' the empty ones, Shift + orange push to ' + w('reap') + ' them all.' : '');
+    else say = w('gardens', 'Gardens') + ': a number key plays one, Shift + a number key plants the chord now. Shift + blue push to ' + w('walk') + ' them; Shift + tan push loads the next of the ' + w('demos') + '.' + (onDrum ? ' Shift + gray push to ' + w('sow') + ' the empty ones, Shift + orange push to ' + w('reap') + ' them all.' : '');
     if ($('coach').innerHTML !== say) $('coach').innerHTML = say;
   }
 
@@ -811,7 +812,24 @@
 
   // ---- the frame: the page's frame function, its picture, the explanations; the settings kept as the unit keeps them
   let frames = 0;
+  // a demo loaded on one Garden (T4, Shift + tan push) loads its other half on the other; a drum demo wants a kit
+  const demoSeen = {synth: 0, drum: 0};
+  function demos() {
+    for (const G of Object.values(gardens)) {
+      const st = JSON.parse(G.M.UTF8ToString(G.M._gw_state(0)));
+      if (st.demo_loaded === demoSeen[G.kind]) continue;
+      demoSeen[G.kind] = st.demo_loaded;
+      const other = G === gardens.synth ? gardens.drum : gardens.synth;
+      other.M._gw_demo(st.demo_now);
+      demoSeen[other.kind] = JSON.parse(other.M.UTF8ToString(other.M._gw_state(0))).demo_loaded;
+      if (drum.kits[drum.kit].pitched) { drum.setKit(0); $('kit').value = '0'; store.set('kit', '0'); }
+      note('demo ' + st.demo_now);
+      return;
+    }
+  }
+
   function frame(t) {
+    if ((frames & 7) === 0) demos();
     for (const G of Object.values(gardens)) {         // both Gardens' frames: each keeps its own settings file
       G.M._gw_frame(Math.floor(t) >>> 0, shift() ? 1 : 0);
       drain(synth.now(), G);
