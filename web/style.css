@@ -173,3 +173,8 @@ kbd { display: none; font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monos
 .words dd { margin: 0; color: var(--dim); font-size: 15px; line-height: 1.45; }
 
 .coach.in-device { background: var(--panel); border-radius: 12px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
+
+/* the demo menu beside the tempo */
+.demo-pick select { background: var(--panel); color: var(--ink); border: 0; border-radius: 10px; padding: 8px 10px; font: inherit; font-weight: 600; }
+
+.bar-mix[hidden] { display: none; }

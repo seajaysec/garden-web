@@ -118,12 +118,63 @@ EMSCRIPTEN_KEEPALIVE void gw_instrument(int drum) {
     garden_shown(instr, on ? (u32)OP1F_SHOWN_UP : (u32)OP1F_SHOWN_OFF);
 }
 
-// A demo's half of this Garden (the drum's when it is the drum), and the next push's demo after it: the page loads
-// the other Garden's half when one is loaded on the unit's way (T4, Shift + tan push).
+// ---- demos (the page's menu beside the tempo; not the pack's): a synth half and a drum half meant to play together.
+// A demo plants four gardens (clearing the rest) and sets the style, rate, order, voicing, phrase, loop, cycle,
+// downtime, echo and walk; the drum's half also puts the drum in drum mode, its gardens' keys counted from the drum's
+// first key and laid for the page's 808 (kicks, then snares, claps, toms and hats).
+enum { DEMOS = 4, DEMO_GARDENS = 4 };
+struct DemoHalf {
+    unsigned char style, rate, order, vtype, phrase, loop, cycle, down, echo, walk_len;
+    unsigned char root[DEMO_GARDENS], kind[DEMO_GARDENS], ext[DEMO_GARDENS][4];   // synth: a note; drum: a key 0..23
+};
+struct Demo { const char* name; DemoHalf synth, drum; };
+enum { X = NONE };   // no pollinator
+// kinds: 0 maj 1 min 2 sus4 4 aug 5 qrt 6 sus2 8 pow 9 qnt; pollinators: 1 -7, 2 +7, 3 9, 4 b9, 5 #9, 6 #11, 7 13,
+// 9 b13, 11 2; styles: 1 strum, 4 arp, 5 farp, 6 pattern, 7 harp; rates: 6 1/8, 8 1/16; orders: 0 up, 2 updown;
+// voicings: 0 close, 3 open; phrases: 2 rain, 12 heartbeat; echo 4: 1/8
+static const Demo DEMO[DEMOS] = {
+    { "bloom",   // C9, G, Am7, Fmaj7, strummed a chord a bar / kick, snare, clap and hats to a heartbeat
+      { 1, 6, 0, 0, 0, 1, CYC_BAR, DOWN_REPEAT, 0, 1, { 60, 55, 57, 53 }, { 0, 0, 1, 0 },
+        { { 3, X, X, X }, { X, X, X, X }, { 1, X, X, X }, { 2, X, X, X } } },
+      { 6, 8, 0, 0, 12, 1, CYC_BAR, DOWN_REPEAT, 0, 1, { 0, 0, 0, 0 }, { 0, 0, 4, 0 },
+        { { 6, X, X, X }, { 6, X, X, X }, { 6, X, X, X }, { 9, X, X, X } } } },
+    { "night",   // Dm9, G13, Cmaj9, A7#9, arped up and down, open / rim, maracas and hand claps rolling
+      { 4, 8, 2, 3, 0, 1, CYC_BAR, DOWN_REPEAT, 0, 1, { 62, 55, 60, 57 }, { 1, 0, 0, 0 },
+        { { 1, 3, X, X }, { 1, 7, X, X }, { 2, 3, X, X }, { 1, 5, X, X } } },
+      { 4, 8, 0, 0, 0, 1, CYC_BAR, DOWN_REPEAT, 0, 1, { 2, 0, 2, 1 }, { 0, 2, 0, 1 },
+        { { 4, X, X, X }, { 6, X, X, X }, { 4, X, X, X }, { 9, X, X, X } } } },
+    { "drift",   // Fsus2, Csus4 add9, Am add9, G quartal, harped with echo, two bars each / toms, cowbell, cymbal, resting
+      { 7, 6, 0, 3, 0, 1, CYC_TWO, DOWN_REPEAT, 4, 2, { 53, 60, 57, 55 }, { 6, 2, 1, 5 },
+        { { 2, X, X, X }, { 3, X, X, X }, { 3, X, X, X }, { X, X, X, X } } },
+      { 6, 6, 0, 0, 2, 1, CYC_TWO, DOWN_REST, 0, 2, { 0, 8, 0, 16 }, { 8, 6, 8, 8 },
+        { { 9, X, X, X }, { 4, X, X, X }, { 9, X, X, X }, { 11, X, X, X } } } },
+    { "run",     // Am, Fmaj7, C, Gsus4, a farp at 1/16 / kick and hats running
+      { 5, 8, 0, 0, 0, 1, CYC_BAR, DOWN_REPEAT, 0, 1, { 57, 53, 60, 55 }, { 1, 0, 0, 2 },
+        { { X, X, X, X }, { 2, X, X, X }, { X, X, X, X }, { X, X, X, X } } },
+      { 5, 8, 0, 0, 0, 1, CYC_BAR, DOWN_REPEAT, 0, 1, { 0, 4, 0, 0 }, { 0, 5, 4, 9 },
+        { { 6, X, X, X }, { 3, X, X, X }, { 6, X, X, X }, { 6, X, X, X } } } },
+};
+EMSCRIPTEN_KEEPALIVE int gw_demos() { return DEMOS; }
+EMSCRIPTEN_KEEPALIVE const char* gw_demo_name(int i) { return i >= 0 && i < (int)DEMOS ? DEMO[i].name : ""; }
+// This Garden's half of demo i (the drum's half when it plays the drum).
 EMSCRIPTEN_KEEPALIVE void gw_demo(int i) {
     if (i < 0 || i >= (int)DEMOS) return;
-    load_demo(i, instr == 1u);
-    demo_next = (i + 1) & (DEMOS - 1);
+    int drum = instr == 1u;
+    const DemoHalf* h = drum ? &DEMO[i].drum : &DEMO[i].synth;
+    u32 m = mask_off();
+    g.style = h->style; g.rate = h->rate; g.order = h->order; g.vtype = h->vtype; g.phrase = h->phrase; g.loop = h->loop;
+    cycle_set(h->cycle); down_set(h->down); g.echo = h->echo; g.walk_len = h->walk_len; g.walk_order = 0;
+    if (drum) g.melodic = 0;
+    for (int k = 0; k < 8; ++k) {
+        int planted_here = k < DEMO_GARDENS;
+        g.pad_used[k] = (unsigned char)planted_here;
+        g.seed_q[k] = planted_here ? h->kind[k] : (unsigned char)NONE;
+        g.pad_root[k] = planted_here ? (unsigned char)clampi(drum ? pad_base + h->root[k] : h->root[k], 0, 127) : (unsigned char)60;
+        for (int e = 0; e < 4; ++e) g.seed_ext[k][e] = planted_here ? h->ext[k][e] : (unsigned char)NONE;
+    }
+    g.pad_sel = 0;
+    mask_on(m);
+    changed(1);
 }
 
 EMSCRIPTEN_KEEPALIVE void gw_frame(unsigned ms, int shift) {
@@ -189,7 +240,7 @@ static void close_obj() { if (js[jn - 1] == ',') --jn; put("}"); }
 extern "C" EMSCRIPTEN_KEEPALIVE const char* gw_state(int shift) {
     jn = 0;
     put("{");
-    num("on", on); num("drum", (int)instr); num("demo_loaded", (int)demo_loaded); num("demo_now", demo_now); num("kit", drum_mode()); num("page", page); num("help", help_open); num("mono", st.mono);
+    num("on", on); num("drum", (int)instr); num("kit", drum_mode()); num("page", page); num("help", help_open); num("mono", st.mono);
     put("\"g\":{");
     num("cascade", g.cascade); num("boost", g.boost); num("style", g.style); num("rate", g.rate); num("order", g.order);
     num("phrase", g.phrase); num("vtype", g.vtype); num("pulse", g.pulse); num("loop", g.loop); num("hold", g.hold);
