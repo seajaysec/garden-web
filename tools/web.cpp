@@ -173,9 +173,15 @@ EMSCRIPTEN_KEEPALIVE void gw_demo(int i) {
         for (int e = 0; e < 4; ++e) g.seed_ext[k][e] = planted_here ? h->ext[k][e] : (unsigned char)NONE;
     }
     g.pad_sel = 0;
+    st.walk = 0;                                       // whatever played stops; the demo's walk starts at the next tick,
+    release_gesture();                                 // on the clock's next 1/16, its turns on its length's lines
+    walk_req = 1;
     mask_on(m);
+    flush();
     changed(1);
 }
+// A demo's walk stopped (as the ending says).
+EMSCRIPTEN_KEEPALIVE void gw_walk_stop() { if (st.walk) walk_req = 1; }
 
 EMSCRIPTEN_KEEPALIVE void gw_frame(unsigned ms, int shift) {
     ms_now = ms;

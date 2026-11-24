@@ -19,7 +19,7 @@ rm -rf "$OUT"; mkdir -p "$OUT/vendor" "$OUT/icons" "$GEN/hostinc"
 sed '/static_assert/,/;/d' "$CARD" > "$GEN/hostinc/build_r6e_card.h"   # the card header asserts 32-bit sizes
 emcc -O2 -std=gnu++11 -DOP1F_HOST -DGARDEN_HOST -w -I. -I"$GEN/hostinc" -I"$GP" tools/web.cpp "$GP/articulate.cpp" \
   -sSINGLE_FILE=1 -sMODULARIZE=1 -sEXPORT_NAME=GardenEngine -sENVIRONMENT=web,worker -sFILESYSTEM=0 \
-  -sEXPORTED_FUNCTIONS=_gw_file,_gw_file_set,_gw_file_len,_gw_file_writes,_gw_settings_bytes,_gw_g,_gw_show,_gw_mono,_gw_run,_gw_instrument,_gw_demos,_gw_demo_name,_gw_demo,_gw_frame,_gw_tick,_gw_key,_gw_input,_gw_notes,_gw_note,_gw_notes_clear,_gw_part_count,_gw_parts,_gw_text_count,_gw_text,_gw_text_x,_gw_text_y,_gw_text_align,_gw_state \
+  -sEXPORTED_FUNCTIONS=_gw_file,_gw_file_set,_gw_file_len,_gw_file_writes,_gw_settings_bytes,_gw_g,_gw_show,_gw_mono,_gw_run,_gw_instrument,_gw_demos,_gw_demo_name,_gw_demo,_gw_walk_stop,_gw_frame,_gw_tick,_gw_key,_gw_input,_gw_notes,_gw_note,_gw_notes_clear,_gw_part_count,_gw_parts,_gw_text_count,_gw_text,_gw_text_x,_gw_text_y,_gw_text_align,_gw_state \
   -sEXPORTED_RUNTIME_METHODS=UTF8ToString,HEAPU8,HEAP32 -o "$OUT/engine.js"
 python3 -I x0x/tools/gen_drum_samples.py "$GEN/x0x_drum_samples.h" >/dev/null
 emcc -O2 -std=c99 -Wall -Werror -I x0x -I "$GEN" drums.c x0x/drum909.c x0x/drum808.c \

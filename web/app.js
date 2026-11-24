@@ -48,7 +48,12 @@
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     const had = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) location.reload(); });
+    // a new version: before the sound starts, at once; after, a notice to tap (no reload under the player's hands)
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!had) return;
+      if (!window.GARDEN || !window.GARDEN.playing()) { location.reload(); return; }
+      const n = document.getElementById('update'); n.hidden = false; n.onclick = () => location.reload();
+    });
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
@@ -540,7 +545,7 @@
     'walk': 'Shift + blue push on T4: Garden plays the planted gardens in turn, each for the walk length, in the walk order.',
     'sow': 'Garden drum, Shift + gray push on T4: every empty garden gets a random key, kind and pollinators. Planted ones are kept.',
     'reap': 'Garden drum, Shift + orange push on T4: every garden emptied. A walk with no garden left ends, as the ending says.',
-    'demos': 'The demo menu beside the tempo (here only, not in the pack): bloom, night, drift and run. Each plants four gardens in both Gardens and sets a style, rate, cycle and walk, a synth half and a drum half that play together. On T4, Shift + blue push walks them.',
+    'demos': 'The demo buttons beside the tempo (here only, not in the pack): bloom, night, drift and run. A tap plants four gardens in both Gardens, sets a style, rate, cycle and walk, a synth half and a drum half, and walks both together; a tap on the lit one stops them.',
     'drum mode': 'Garden drum\'s first mode, for a kit: a chord\'s notes are keys apart and wrap round the 24 keys, octaves land on the other half of the kit, and the styles take a drummer\'s names (hit, flam, drag, loose, roll, run, groove, sweep). Shift + tan push on T1 switches.',
     'melodic mode': 'Garden drum\'s second mode, for one sound laid a semitone a key: Garden plays real chords, folded onto the 24 keys. Shift + tan push on T1 switches.',
     'shift': 'Hold it (or tap it, for the next control) for each control\'s second layer: on T1 echo, rate, the other order and boost pulse; on T2 the ending.',
@@ -817,6 +822,7 @@
   // ---- the frame: the page's frame function, its picture, the explanations; the settings kept as the unit keeps them
   let frames = 0;
   function frame(t) {
+    if (demoOn >= 0 && (frames & 15) === 15 && gardens.synth.S && gardens.drum.S && !gardens.synth.S.view.walking && !gardens.drum.S.view.walking) { demoOn = -1; demoLit(); }
     for (const G of Object.values(gardens)) {         // both Gardens' frames: each keeps its own settings file
       G.M._gw_frame(Math.floor(t) >>> 0, shift() ? 1 : 0);
       drain(synth.now(), G);
@@ -885,17 +891,22 @@
   }
   drum.kits.forEach((k, i) => { const o = document.createElement('option'); o.value = i; o.textContent = k.name + (k.pitched ? ' · melodic' : ''); $('kit').appendChild(o); });
   $('kit').value = String(drum.kit);
-  // demos, beside the tempo: both Gardens' halves at once; a drum half wants a kit of drums
-  for (let i = 0; i < M._gw_demos(); ++i) { const o = document.createElement('option'); o.value = i; o.textContent = M.UTF8ToString(M._gw_demo_name(i)); $('demo').appendChild(o); }
-  $('demo').onchange = () => {
-    const i = +$('demo').value;
-    if (i < 0) return;
-    for (const G of Object.values(gardens)) { G.M._gw_demo(i); drain(synth.now(), G); }
-    if (drum.kits[drum.kit].pitched) { drum.setKit(0); $('kit').value = '0'; store.set('kit', '0'); }
-    note('demo ' + $('demo').selectedOptions[0].textContent);
-    hint('Demo ' + $('demo').selectedOptions[0].textContent + ': on T4, Shift + blue push walks its gardens.');
-    $('demo').value = '-1';
-  };
+  // demos, beside the tempo: a tap loads both Gardens' halves and walks both at once (the drum's half wants a kit of
+  // drums); the demo playing is lit, and a tap on it again stops both walks
+  let demoOn = -1;
+  const $$demo = [];
+  for (let i = 0; i < M._gw_demos(); ++i) {
+    const b = document.createElement('button');
+    b.className = 'demo'; b.textContent = M.UTF8ToString(M._gw_demo_name(i)); b.dataset.demo = i;
+    b.onclick = () => {
+      if (demoOn === i) { for (const G of Object.values(gardens)) { G.M._gw_walk_stop(); } demoOn = -1; note('demo stopped'); demoLit(); return; }
+      if (drum.kits[drum.kit].pitched) { drum.setKit(0); $('kit').value = '0'; store.set('kit', '0'); }
+      for (const G of Object.values(gardens)) { G.M._gw_demo(i); drain(synth.now(), G); }
+      demoOn = i; note('demo ' + b.textContent); demoLit();
+    };
+    $('demos').appendChild(b); $$demo.push(b);
+  }
+  function demoLit() { $$demo.forEach((b, i) => { b.classList.toggle('on', i === demoOn); b.setAttribute('aria-pressed', String(i === demoOn)); }); }
   // the synth's mode (poly, mono, legato, unison), also on Sound's play page (Shift + T2, blue)
   MODES.forEach((m, i) => { const o = document.createElement('option'); o.value = i; o.textContent = m; $('synth-mode').appendChild(o); });
   $('synth-mode').value = String(synth.p.mode);
@@ -937,6 +948,6 @@
   setView(view);
   midi();
   requestAnimationFrame(frame);
-  window.GARDEN = {get M() { return M; }, gardens, drum, synth, state: () => S, link: stateLink, input, keyDown, keyUp, begin, setView,
+  window.GARDEN = {playing: () => ticking, get M() { return M; }, gardens, drum, synth, state: () => S, link: stateLink, input, keyDown, keyUp, begin, setView,
     midi: (name, bytes) => midiMessage({name, id: name}, {data: bytes})};
 })();

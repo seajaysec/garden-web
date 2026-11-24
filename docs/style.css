@@ -174,8 +174,6 @@ kbd { display: none; font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monos
 
 .coach.in-device { background: var(--panel); border-radius: 12px; padding: 10px 12px; font-size: 15px; line-height: 1.45; }
 
-/* the demo menu beside the tempo */
-.demo-pick select { background: var(--panel); color: var(--ink); border: 0; border-radius: 10px; padding: 8px 10px; font: inherit; font-weight: 600; }
 
 .bar-mix[hidden] { display: none; }
 
@@ -183,3 +181,18 @@ kbd { display: none; font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monos
 .pack-link { display: block; font-weight: 700; color: var(--blue-ink); text-decoration: none; margin-bottom: 12px; }
 .pack-link:hover { text-decoration: underline; }
 .version a { color: inherit; }
+
+/* the demos beside the tempo, never cut short */
+.demos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.demos-label { color: var(--dim); font-weight: 600; font-size: 14px; margin-right: 2px; }
+.demo { background: var(--panel); border: 0; border-radius: 10px; padding: 8px 12px; font-weight: 600; white-space: nowrap; cursor: pointer; color: var(--ink); }
+.demo.on { background: var(--ink); color: #111; }
+
+/* a new version, offered rather than forced */
+.update { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30;
+  background: var(--ink); color: #111; border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 700; box-shadow: 0 6px 24px rgba(0,0,0,.5); cursor: pointer; }
+.update[hidden] { display: none; }
+
+/* the demos and the tempo, side by side, one unit that wraps as one */
+.demo-tempo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; flex: 1 1 360px; }
+.demo-tempo .tempo { margin-left: auto; }

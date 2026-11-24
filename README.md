@@ -29,9 +29,10 @@ node test.mjs       # every key of every kit rendered by the drum engines
 - **In time together.** Here a chord starts on the clock's next 1/16, its steps fall on the clock's grid at its own
   rate, the cycle starts over on the shared bar lines (1 bar unless set), and a walk changes chords on its own
   length's lines, so the two Gardens line up however their keys went down. (On the unit a chord starts at the key.)
-- **Demos** (the menu beside the tempo, here only): bloom, night, drift and run. Each plants four gardens in both
-  Gardens and sets a style, rate, cycle and walk, a synth half and a drum half laid for the 808. On T4, Shift + blue
-  push walks them.
+- **Demos** (the buttons beside the tempo, here only): bloom, night, drift and run. A tap plants four gardens in both
+  Gardens, sets a style, rate, cycle and walk (a synth half and a drum half laid for the 808) and walks both at once,
+  in time; the lit one tapped again stops them.
+- **A new version** is offered with a notice once the sound runs, rather than reloading the page under you.
 - **Garden drum** starts in drum mode (the drum theme, a drummer's style names, octaves on the other half of the
   kit); Shift + tan push on T1 switches to melodic mode (Garden as on the synth, for a sample laid a semitone a key).
   A kit sets the mode when picked: 808, 909 and 808 + 909 drum, the melodic kits melodic.

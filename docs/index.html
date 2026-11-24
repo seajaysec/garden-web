@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="style.css?v=ea53080cbe6b">
+<link rel="stylesheet" href="style.css?v=070deb7cf583">
 </head>
 <body>
 <main id="app">
@@ -31,8 +31,10 @@
         <label class="ctl kit-ctl"><span>mode</span><select id="synth-mode"></select></label>
         <label class="ctl kit-ctl"><span>kit</span><select id="kit"></select></label>
       </div>
-      <label class="demo-pick" title="a demo: chords and drums for both Gardens"><select id="demo" aria-label="demo"><option value="-1">demo…</option></select></label>
+      <div class="demo-tempo">
+      <div class="demos" id="demos" role="group" aria-label="demos"><span class="demos-label">demo</span></div>
       <label class="tempo"><span id="bpm-out">120</span><input id="bpm" type="range" min="40" max="240" value="120" aria-label="tempo"></label>
+      </div>
     </div>
     <div class="screen-wrap">
       <div id="screen" class="screen"></div>
@@ -103,6 +105,7 @@
   </section>
 </main>
 <div id="tip" class="tip" role="tooltip" hidden></div>
+<button id="update" class="update" hidden>A new version is ready: tap to update</button>
 <dialog id="report-dlg" class="dlg">
   <form method="dialog" id="report-form">
     <h2>Web and unit differ</h2>
@@ -113,11 +116,11 @@
     <div class="row"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn go" id="r-open" value="open">Open the issue</button></div>
   </form>
 </dialog>
-<script src="vendor/Tone.js?v=ea53080cbe6b"></script>
-<script src="engine.js?v=ea53080cbe6b"></script>
-<script src="drums.js?v=ea53080cbe6b"></script>
-<script src="drum.js?v=ea53080cbe6b"></script>
-<script src="synth.js?v=ea53080cbe6b"></script>
-<script src="app.js?v=ea53080cbe6b"></script>
+<script src="vendor/Tone.js?v=070deb7cf583"></script>
+<script src="engine.js?v=070deb7cf583"></script>
+<script src="drums.js?v=070deb7cf583"></script>
+<script src="drum.js?v=070deb7cf583"></script>
+<script src="synth.js?v=070deb7cf583"></script>
+<script src="app.js?v=070deb7cf583"></script>
 </body>
 </html>
