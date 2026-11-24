@@ -178,3 +178,8 @@ kbd { display: none; font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monos
 .demo-pick select { background: var(--panel); color: var(--ink); border: 0; border-radius: 10px; padding: 8px 10px; font: inherit; font-weight: 600; }
 
 .bar-mix[hidden] { display: none; }
+
+/* the pack, on GitHub */
+.pack-link { display: block; font-weight: 700; color: var(--blue-ink); text-decoration: none; margin-bottom: 12px; }
+.pack-link:hover { text-decoration: underline; }
+.version a { color: inherit; }

@@ -53,7 +53,8 @@
   }
 
   const build = await fetch('build.json', {cache: 'no-cache'}).then(r => r.json()).catch(() => ({garden: '?', pack: ''}));
-  $('version').textContent = 'Garden ' + build.garden + (build.pack ? ' · pack ' + build.pack.slice(0, 8) : '');
+  $('version').innerHTML = '<a href="https://github.com/seajaysec/garden-op1f" target="_blank" rel="noopener">Garden ' + build.garden + '</a>' +
+    (build.pack ? ' · pack ' + build.pack.slice(0, 8) : '');
 
   // ---- link state, then stored state
   const hash = new URLSearchParams(location.hash.slice(1));
